@@ -9,12 +9,14 @@ def __euclidean_distance(pa, pb):
 
     return distance**0.5
 
+
 def knn(instances, test_instances, k):
     """
     Calculates the k nearest neighbor's and predicts the class of the new test_instances (tries)
 
     :param list instances: A list of tuples like [((<attributes>), <classification>), ...]
     :param list test_instances: The testing instances, composed of a list of attribute tuples like [(<attributes>), ...]
+    :param integer k: The k factor for the algorithm
     :return: A list with the classification related to the test instances
     :rtype: list
     """
