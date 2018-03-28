@@ -1,12 +1,16 @@
 #! /usr/bin/python
 
+from __future__ import division
 import random
+
 
 class NumericDataTransformer(object):
 
     __attr = []
     __data = []
     __class_attr = ""
+    __data_by_attributes = {}
+    __data_as_instances = []
 
     def __init__(self, raw_data, class_attr):
         self.__data = raw_data
@@ -14,6 +18,9 @@ class NumericDataTransformer(object):
         self.__class_attr = class_attr
 
     def by_attributes(self):
+        if bool(self.__data_by_attributes):
+            return self.__data_by_attributes
+
         data = {}
 
         for idx, attr in enumerate(self.__attr):
@@ -24,6 +31,9 @@ class NumericDataTransformer(object):
                     data[attr].append(float(row[idx].strip()))
                 except ValueError:
                     pass
+
+        # Saves for further use
+        self.__data_by_attributes = data
 
         return data
 
@@ -57,7 +67,6 @@ class NumericDataTransformer(object):
         """
         Normalizes the data represented by an dictionary
 
-        :param dictionary data: {<attribute1>: [<values1>], ...}
         :return: A list with the normalized data
         :rtype: list
         """
@@ -77,6 +86,9 @@ class NumericDataTransformer(object):
         return normalized_data
 
     def as_instances(self):
+        if self.__data_as_instances:
+            return self.__data_as_instances
+
         data = self.by_attributes()
 
         classes = data[self.__class_attr]
@@ -94,6 +106,9 @@ class NumericDataTransformer(object):
                 instances[idx] = instances[idx] + (value,)
 
         instances = [(instance, classes[idx]) for idx, instance in enumerate(instances)]
+
+        # Saves for further use
+        self.__data_as_instances = instances
 
         return instances
 
@@ -137,10 +152,9 @@ class NumericDataTransformer(object):
 
                         folds[idx].append(instance)
 
-                    --counter
+                    counter -= 1
 
                 except (ValueError, IndexError):
                     break
 
         return folds
-
