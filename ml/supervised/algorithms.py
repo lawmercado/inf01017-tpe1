@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+import sys
+
 
 def __euclidean_distance(pa, pb):
     distance = 0
@@ -24,15 +26,20 @@ def knn(instances, test_instances, k):
     classified = []
 
     for test_instance in test_instances:
-        distances = []
+        distances = [sys.maxsize for i in range(0, k)]
+        distances_idx = [0 for i in range(0, k)]
 
-        for instance in instances:
-            distance = __euclidean_distance(instance[0], test_instance)
+        for idx_instance, instance in enumerate(instances):
+            instance_distance = __euclidean_distance(instance[0], test_instance)
 
-            distances.append(distance)
+            for idx_distance, distance in enumerate(distances):
+                if distance > instance_distance:
+                    distances.insert(idx_distance, instance_distance)
+                    distances_idx.insert(idx_distance, idx_instance)
+                    distances.pop()
+                    distances_idx.pop()
 
-        distances_idx = list(range(len(distances)))
-        distances_idx.sort(key=lambda y: distances[y])
+                    break
 
         knn_classes = [instances[i][1] for i in distances_idx[0:k]]
 
