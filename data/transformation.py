@@ -5,6 +5,10 @@ import random
 
 
 class NumericDataTransformer(object):
+    """
+    A class for raw data manipulation into specific structures
+
+    """
 
     __attr = []
     __data = []
@@ -13,6 +17,13 @@ class NumericDataTransformer(object):
     __data_as_instances = []
 
     def __init__(self, raw_data, class_attr):
+        """
+        Constructor of the class
+
+        :param list raw_data: A list of data
+        :param list class_attr: An attribute that contains important conclusion/information about the record
+        """
+
         self.__data = raw_data
         self.__attr = self.__data.pop(0)
         self.__class_attr = class_attr
@@ -23,12 +34,12 @@ class NumericDataTransformer(object):
 
         data = {}
 
-        for idx, attr in enumerate(self.__attr):
+        for idx_attr, attr in enumerate(self.__attr):
             data[attr] = []
 
             for row in self.__data:
                 try:
-                    data[attr].append(float(row[idx].strip()))
+                    data[attr].append(float(row[idx_attr].strip()))
                 except ValueError:
                     pass
 
@@ -102,10 +113,10 @@ class NumericDataTransformer(object):
             instances.append(())
 
         for key in normalized_data:
-            for idx, value in enumerate(normalized_data[key]):
-                instances[idx] = instances[idx] + (value,)
+            for idx_value, value in enumerate(normalized_data[key]):
+                instances[idx_value] = instances[idx_value] + (value,)
 
-        instances = [(instance, classes[idx]) for idx, instance in enumerate(instances)]
+        instances = [(instance, classes[idx_instance]) for idx_instance, instance in enumerate(instances)]
 
         # Saves for further use
         self.__data_as_instances = instances

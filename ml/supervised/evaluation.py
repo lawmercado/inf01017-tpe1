@@ -10,15 +10,15 @@ def knn_kcrossvalidation(data_transformer, knn_factor, k_folds):
 
     measures = {"acc": [], "f-measure": []}
 
-    for idx, fold in enumerate(folds):
+    for idx_fold, fold in enumerate(folds):
         aux_folds = list(folds)  # Copy the folds
-        test_instances = [instance[0] for instance in aux_folds.pop(idx)]
+        test_instances = [instance[0] for instance in aux_folds.pop(idx_fold)]
 
         train_instances = []
         for aux_fold in aux_folds:
             train_instances += aux_fold
 
-        classified = knn(train_instances, test_instances, knn_factor)
+        classified_instances = knn(train_instances, test_instances, knn_factor)
 
         # Compare classified instances with the test set
         correct_classifications = 0
@@ -27,10 +27,7 @@ def knn_kcrossvalidation(data_transformer, knn_factor, k_folds):
         false_negative = 0
         true_negative = 0
 
-        count = 0
-        for (predicted_instance, test_instance) in zip(classified, fold):
-            #print("Instance", count, "Predicted:", predicted_instance[1], "Answer:", test_instance[1])
-            count += 1
+        for (predicted_instance, test_instance) in zip(classified_instances, fold):
             if predicted_instance[1] == test_instance[1]:
                 correct_classifications += 1
                 if predicted_instance[1] == 1:
@@ -44,14 +41,8 @@ def knn_kcrossvalidation(data_transformer, knn_factor, k_folds):
             elif predicted_instance[1] == 0:
                 false_negative += 1
 
-
-        # Print confusion matrix
-        print("\n\n\t| + | - |")
-        print("\n|+| %s| %s|" % (true_positive, false_negative))
-        print("\n|-| %s| %s|" % (false_positive, true_negative))
-
-        # Then generate the statistics
-        acc = correct_classifications / len(classified)
+        # Generate the statistics
+        acc = correct_classifications / len(classified_instances)
         measures["acc"].append(acc)
 
         rev = true_positive / (true_positive + false_negative)
@@ -61,37 +52,45 @@ def knn_kcrossvalidation(data_transformer, knn_factor, k_folds):
         f_measure = 2 * (prec * rev) / (prec + rev)
         measures["f-measure"].append(f_measure)
 
-    return __get_statistics(measures)
+    return measures
 
 
-def knn_repeatedkcrossvalidation(data_transformer, knn_factor, k_folds, reptitions):
+def knn_repeatedkcrossvalidation(data_transformer, knn_factor, k_folds, repetitions):
     measures = {"acc": [], "f-measure": []}
 
-    for x in range(0, reptitions):
-        measure = knn_kcrossvalidation(data_transformer, knn_factor, k_folds)
+    for i in range(0, repetitions):
+        fold_measures = knn_kcrossvalidation(data_transformer, knn_factor, k_folds)
 
-        measures["acc"].append(measure["acc"][0])
-        measures["f-measure"].append(measure["f-measure"][0])
+        measures["acc"] += fold_measures["acc"]
+        measures["f-measure"] += fold_measures["f-measure"]
 
-    return __get_statistics(measures)
+    return measures
 
 
-def __get_statistics(measures):
+def get_statistics(measures):
+    """
+    With a set of measures, calculates the average and de standard
+
+    :param dict measures: The name of the measures and a list of measurement
+    :return: A tuple containing the average and the standard deviation associated with the measure
+    :rtype: dict { measure: (<average>, <standard deviation>), ... }
+    """
+
     statistics = {}
 
-    for id in measures:
+    for id_measure in measures:
         acc = 0
-        for measure in measures[id]:
+        for measure in measures[id_measure]:
             acc += measure
 
-        avg = acc / len(measures[id])
+        avg = acc / len(measures[id_measure])
 
         f_acc = 0
-        for measure in measures[id]:
+        for measure in measures[id_measure]:
             f_acc += (measure - avg) ** 2
 
-        stdd = (f_acc / (len(measures[id]) - 1)) ** 0.5
+        std_deviation = (f_acc / (len(measures[id_measure]) - 1)) ** 0.5
 
-        statistics[id] = (avg, stdd)
+        statistics[id_measure] = (avg, std_deviation)
 
     return statistics
