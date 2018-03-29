@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 from __future__ import division
+from __future__ import print_function
 from ml.supervised.algorithms import knn
 
 
@@ -24,18 +25,30 @@ def knn_kcrossvalidation(data_transformer, knn_factor, k_folds):
         true_positive = 0
         false_positive = 0
         false_negative = 0
+        true_negative = 0
 
+        count = 0
         for (predicted_instance, test_instance) in zip(classified, fold):
+            #print("Instance", count, "Predicted:", predicted_instance[1], "Answer:", test_instance[1])
+            count += 1
             if predicted_instance[1] == test_instance[1]:
                 correct_classifications += 1
                 if predicted_instance[1] == 1:
                     true_positive += 1
+                else:
+                    true_negative += 1
 
             elif predicted_instance[1] == 1:
                 false_positive += 1
 
             elif predicted_instance[1] == 0:
                 false_negative += 1
+
+
+        # Print confusion matrix
+        print("\n\n\t| + | - |")
+        print("\n|+| %s| %s|" % (true_positive, false_negative))
+        print("\n|-| %s| %s|" % (false_positive, true_negative))
 
         # Then generate the statistics
         acc = correct_classifications / len(classified)
