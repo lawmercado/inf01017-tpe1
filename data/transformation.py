@@ -169,3 +169,15 @@ class NumericDataTransformer(object):
                     break
 
         return folds
+
+    def make_bootstrap(self, ratio=1.0):
+        instances = self.as_instances()
+
+        bootstrap = []
+        bootstrap_size = round(len(instances) * ratio)
+
+        while len(bootstrap) < bootstrap_size:
+            index = random.randrange(len(instances))
+            bootstrap.append(instances[index])
+
+        return bootstrap
